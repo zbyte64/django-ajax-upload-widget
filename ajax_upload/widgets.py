@@ -48,9 +48,7 @@ class AjaxClearableFileInput(forms.ClearableFileInput):
             file_path = data.get(name)
             if not file_path:
                 return False  # False means clear the existing file
-            elif file_path.startswith(settings.MEDIA_URL):
-                # Strip and media url to determine the path relative to media root
-                relative_path = file_path[len(settings.MEDIA_URL):]
+            else:
                 relative_path = urllib2.unquote(relative_path.encode('utf8')).decode('utf8')
                 try:
                     uploaded_file = UploadedFile.objects.get(file=relative_path)
@@ -59,7 +57,5 @@ class AjaxClearableFileInput(forms.ClearableFileInput):
                     return None
                 else:
                     return File(uploaded_file.file)
-            else:
-                raise AjaxUploadException(u'%s %s' % (_('File path not allowed:'), file_path))
         return None
 

@@ -107,6 +107,7 @@
         } else {
             this.$clearCheckbox.attr('checked', '');
             this.$hiddenElement.val(data.path);
+            this.$hiddenElement.attr('data-url', data.url);
             var tmp = this.$element;
             this.$element = this.$element.clone(true).val('');
             tmp.replaceWith(this.$element);
@@ -125,7 +126,7 @@
     };
 
     AjaxUploadWidget.prototype.displaySelection = function() {
-        var filename = this.$hiddenElement.val() 
+        var filename = this.$hiddenElement.attr('data-url'); 
         if (!filename && !this.$clearCheckbox.is(':checked')) {
             filename = this.$element.attr('data-filename');
         }

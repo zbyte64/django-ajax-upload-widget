@@ -13,7 +13,8 @@ def upload(request):
     if form.is_valid():
         uploaded_file = form.save()
         data = {
-            'path': uploaded_file.file.url,
+            'path': uploaded_file.file.name,
+            'url': uploaded_file.file.url,
         }
         return HttpResponse(simplejson.dumps(data))
     else:
