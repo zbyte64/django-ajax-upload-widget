@@ -15,13 +15,17 @@ class AjaxUploadException(Exception):
 
 
 class AjaxClearableFileInput(forms.ClearableFileInput):
-    template_with_clear = ''  # We don't need this
-    template_with_initial = '%(input)s'
+    #template_with_clear = ''  # We don't need this
+    initial_text = 'Currently' #shouldn't need to do this
+    template_with_initial = '<span class="ajax-upload-initial">%(initial_text)s: %(initial)s %(clear_template)s<br /></span>%(input_text)s: %(input)s'
 
     def render(self, name, value, attrs=None):
         attrs = attrs or {}
         if value:
-            filename = u'%s%s' % (settings.MEDIA_URL, value)
+            if hasattr(value, 'url'):
+                filename = value.url
+            else:
+                filename = u'%s%s' % (settings.MEDIA_URL, value)
         else:
             filename = ''
         attrs.update({
@@ -30,9 +34,11 @@ class AjaxClearableFileInput(forms.ClearableFileInput):
             'data-required': self.is_required or '',
             'data-upload-url': reverse('ajax-upload')
         })
+        if filename and not self.is_required:
+            attrs['data-clear-name'] = self.clear_checkbox_name(name)
         output = super(AjaxClearableFileInput, self).render(name, value, attrs)
         return mark_safe(output)
-
+    
     def value_from_datadict(self, data, files, name):
         # If a file was uploaded or the clear checkbox was checked, use that.
         file = super(AjaxClearableFileInput, self).value_from_datadict(data, files, name)
@@ -56,3 +62,4 @@ class AjaxClearableFileInput(forms.ClearableFileInput):
             else:
                 raise AjaxUploadException(u'%s %s' % (_('File path not allowed:'), file_path))
         return None
+

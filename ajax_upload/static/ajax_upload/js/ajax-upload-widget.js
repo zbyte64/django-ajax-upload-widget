@@ -32,14 +32,20 @@
 
         // Create a hidden field to contain our uploaded file name
         this.$hiddenElement = $('<input type="hidden"/>')
-            .attr('name', this.name)
-            .val(this.$element.data('filename'));
+            .attr('name', this.name);
         this.$element.attr('name', ''); // because we don't want to conflict with our hidden field
         this.$element.after(this.$hiddenElement);
 
         // Initialize preview area and action buttons
         this.$previewArea = $('<div class="'+this.options.previewAreaClass+'"></div>');
         this.$element.before(this.$previewArea);
+        
+        this.clearName = this.$element.attr('data-clear-name');
+        if (this.clearName) {
+            this.$clearCheckbox = this.$element.siblings('ajax-upload-initial').find(':input[name="'+this.clearName+'"]')
+        } else {
+            this.$clearCheckbox = $([]);
+        }
 
         // Listen for when a file is selected, and perform upload
         this.$element.on('change', function(evt) {
@@ -61,6 +67,7 @@
                     if(result === false) return;
                 }
                 self.$hiddenElement.val('');
+                self.$clearCheckbox.attr('checked', 'checked');
                 self.displaySelection();
             });
         this.$changeButton.after(this.$removeButton);
@@ -98,6 +105,7 @@
                 console.log(data);
             }
         } else {
+            this.$clearCheckbox.attr('checked', '');
             this.$hiddenElement.val(data.path);
             var tmp = this.$element;
             this.$element = this.$element.clone(true).val('');
@@ -117,7 +125,11 @@
     };
 
     AjaxUploadWidget.prototype.displaySelection = function() {
-        var filename = this.$hiddenElement.val();
+        var filename = this.$hiddenElement.val() 
+        if (!filename && !this.$clearCheckbox.is(':checked')) {
+            filename = this.$element.attr('data-filename');
+        }
+        this.$element.siblings('.ajax-upload-initial').hide();
 
         if(filename !== '') {
             this.$previewArea.empty();
