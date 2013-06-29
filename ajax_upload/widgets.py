@@ -47,7 +47,7 @@ class AjaxClearableFileInput(forms.ClearableFileInput):
         elif name in data:  # This means a file path was specified in the POST field
             file_path = data.get(name)
             if not file_path:
-                return False  # False means clear the existing file
+                return None  # False is handled by super
             elif isinstance(file_path, File):
                 raise AjaxUploadException('data should not have a file object')
             else:
