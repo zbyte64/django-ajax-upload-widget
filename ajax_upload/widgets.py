@@ -49,7 +49,7 @@ class AjaxClearableFileInput(forms.ClearableFileInput):
             if not file_path:
                 return False  # False means clear the existing file
             elif isinstance(file_path, File):
-                return file_path
+                raise AjaxUploadException('data should not have a file object')
             else:
                 relative_path = urllib2.unquote(file_path.encode('utf8')).decode('utf8')
                 try:
