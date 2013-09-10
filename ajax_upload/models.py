@@ -4,7 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 
 class UploadedFile(models.Model):
     creation_date = models.DateTimeField(_('creation date'), auto_now_add=True)
-    file = models.FileField(_('file'), upload_to='ajax_uploads/')
+    file = models.FileField(_('file'), upload_to='ajax_uploads/', max_length=512)
 
     class Meta:
         ordering = ('id',)
