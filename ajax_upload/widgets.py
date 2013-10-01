@@ -5,6 +5,7 @@ from django.core.urlresolvers import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
+import logging
 import urllib2
 
 from .models import UploadedFile
@@ -40,6 +41,12 @@ class AjaxClearableFileInput(forms.ClearableFileInput):
         return mark_safe(output)
     
     def value_from_datadict(self, data, files, name):
+        '''
+        returns:
+            File if a file was submitted
+            None if the file is unchanged
+            False if the file is removed
+        '''
         # If a file was uploaded or the clear checkbox was checked, use that.
         file = super(AjaxClearableFileInput, self).value_from_datadict(data, files, name)
         if file is not None:  # super class may return a file object, False, or None
@@ -55,6 +62,9 @@ class AjaxClearableFileInput(forms.ClearableFileInput):
                 try:
                     uploaded_file = UploadedFile.objects.get(file=relative_path)
                 except UploadedFile.DoesNotExist:
+                    logging.exception('Received file path with no match: %s' % relative_path)
+                    #if you posted a uri then the contract is that it is a new upload
+                    raise
                     # Leave the file unchanged (it could be the original file path)
                     return None
                 else:
